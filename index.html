@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Gym Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #0D0B14;
+  --card:       #17132A;
+  --card2:      #1E1A30;
+  --border:     #2C2545;
+  --border2:    #3A3060;
+  --pull:       #9B7DD4;
+  --pull-bg:    rgba(155,125,212,0.10);
+  --pull-tag:   rgba(155,125,212,0.18);
+  --push:       #C9A84C;
+  --push-bg:    rgba(201,168,76,0.08);
+  --push-tag:   rgba(201,168,76,0.16);
+  --legs:       #5DB87A;
+  --legs-bg:    rgba(93,184,122,0.08);
+  --legs-tag:   rgba(93,184,122,0.15);
+  --white:      #EDE8FA;
+  --muted:      #6E648A;
+  --muted2:     #9A8FB5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  padding-bottom: 48px;
+}
+
+/* ── HEADER ───────────────────────────────────── */
+header {
+  padding: 52px 20px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155,125,212,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-bottom: 10px;
+}
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 38px;
+  line-height: 1.1;
+  color: var(--white);
+}
+h1 em {
+  font-style: italic;
+  color: #BFA4EE;
+}
+
+
+/* ── CATEGORY TABS ────────────────────────────── */
+.cat-tabs {
+  display: flex;
+  gap: 0;
+  margin: 8px 16px 0;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 4px;
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+}
+.cat-tab {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.cat-tab .tab-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  transition: opacity 0.18s;
+}
+.cat-tab.active .tab-dot { opacity: 1; }
+.cat-tab.pull.active  { background: var(--pull-bg);  color: var(--pull); }
+.cat-tab.push.active  { background: var(--push-bg);  color: var(--push); }
+.cat-tab.legs.active  { background: var(--legs-bg);  color: var(--legs); }
+
+/* ── TEMPLATE TABS ────────────────────────────── */
+.tmpl-tabs-wrap {
+  padding: 16px 16px 0;
+  display: none;
+}
+.tmpl-tabs-wrap.visible { display: block; }
+
+.tmpl-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.tmpl-tabs::-webkit-scrollbar { display: none; }
+
+.tmpl-tab {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.pull  .tmpl-tab.active { border-color: var(--pull); color: var(--pull); background: var(--pull-bg); }
+.push  .tmpl-tab.active { border-color: var(--push); color: var(--push); background: var(--push-bg); }
+.legs  .tmpl-tab.active { border-color: var(--legs); color: var(--legs); background: var(--legs-bg); }
+
+/* ── PLAN CARD ────────────────────────────────── */
+.plan-area {
+  padding: 14px 16px 0;
+}
+.plan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  display: none;
+}
+.plan-card.visible { display: block; }
+
+.plan-card-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.plan-card-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.pull .plan-card-eyebrow { color: var(--pull); }
+.push .plan-card-eyebrow { color: var(--push); }
+.legs .plan-card-eyebrow { color: var(--legs); }
+
+.plan-card-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--white);
+  line-height: 1.1;
+}
+.plan-card-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.meta-dot { color: var(--border2); }
+
+/* ── EXERCISE ROWS ────────────────────────────── */
+.ex-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+}
+.ex-row:last-child { border-bottom: none; }
+
+.ex-index {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  width: 16px;
+  flex-shrink: 0;
+  padding-top: 3px;
+  text-align: right;
+}
+.ex-body { flex: 1; }
+.ex-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 5px;
+}
+.ex-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.pull .chip-reps { background: var(--pull-tag); color: var(--pull); }
+.push .chip-reps { background: var(--push-tag); color: var(--push); }
+.legs .chip-reps { background: var(--legs-tag); color: var(--legs); }
+
+.chip-note {
+  background: rgba(201,168,76,0.13);
+  color: #C9A84C;
+}
+
+
+
+/* ── WARM-UP NOTE ────────────────────────────── */
+.warmup-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(155,125,212,0.06);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted2);
+}
+.warmup-note::before { content: '⚠'; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Gym Plan · 2025</div>
+  <h1>Train<br><em>Smart</em></h1>
+
+</header>
+
+<!-- CATEGORY TABS -->
+<div class="cat-tabs">
+  <button class="cat-tab pull active" onclick="selectCat('pull')">
+    <span class="tab-dot"></span>Pull
+  </button>
+  <button class="cat-tab push" onclick="selectCat('push')">
+    <span class="tab-dot"></span>Push
+  </button>
+  <button class="cat-tab legs" onclick="selectCat('legs')">
+    <span class="tab-dot"></span>Legs
+  </button>
+</div>
+
+<!-- ── PULL ─────────────────────────────────── -->
+<div class="tmpl-tabs-wrap pull visible" id="tabs-pull">
+  <div class="tmpl-tabs">
+    <button class="tmpl-tab active" onclick="selectTmpl('pull',1)">Day 1</button>
+    <button class="tmpl-tab"        onclick="selectTmpl('pull',2)">Day 2</button>
+  </div>
+</div>
+
+<div class="plan-area pull">
+  <!-- Pull Day 1 -->
+  <div class="plan-card pull visible" id="pull-1">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Pull · Back &amp; Biceps</div>
+      <div class="plan-card-name">Pull Day 1</div>
+      <div class="plan-card-meta">
+        <span>7 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Incline DB Curl &amp; Smith Deadlift before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Incline DB Curl</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Cross Curls</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">Smith Deadlift</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">Seated Row</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">Lat Pulldown</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">6</div><div class="ex-body"><div class="ex-name">Face Pull</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">7</div><div class="ex-body"><div class="ex-name">Cable Crunch</div><div class="ex-chips"><span class="chip chip-reps">12–15 reps</span></div></div></div>
+  </div>
+
+  <!-- Pull Day 2 -->
+  <div class="plan-card pull" id="pull-2">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Pull · Back &amp; Biceps</div>
+      <div class="plan-card-name">Pull Day 2</div>
+      <div class="plan-card-meta">
+        <span>8 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Single Curls &amp; Bent Over Row before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Single Curls</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Hammer Curl</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">Bent Over One Arm Row</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">DB Shrugs</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">Face Pull</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">6</div><div class="ex-body"><div class="ex-name">Seated Wrist Curl</div><div class="ex-chips"><span class="chip chip-reps">15–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">7</div><div class="ex-body"><div class="ex-name">Assisted Pull Up</div><div class="ex-chips"><span class="chip chip-reps">8–12 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">8</div><div class="ex-body"><div class="ex-name">Cable Crunch</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+  </div>
+</div>
+
+<!-- ── PUSH ─────────────────────────────────── -->
+<div class="tmpl-tabs-wrap push" id="tabs-push">
+  <div class="tmpl-tabs">
+    <button class="tmpl-tab active" onclick="selectTmpl('push',1)">Day 1</button>
+    <button class="tmpl-tab"        onclick="selectTmpl('push',2)">Day 2</button>
+  </div>
+</div>
+
+<div class="plan-area push" style="display:none">
+  <!-- Push Day 1 -->
+  <div class="plan-card push visible" id="push-1">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Push · Chest, Shoulders &amp; Triceps</div>
+      <div class="plan-card-name">Push Day 1</div>
+      <div class="plan-card-meta">
+        <span>7 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Decline Bench &amp; DB Overhead Press before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Decline Bench Press</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Bench Press (Machine)</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">DB Overhead Press</div><div class="ex-chips"><span class="chip chip-reps">8–12 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">Rear Delt Fly</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">DB Lateral Raise</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">6</div><div class="ex-body"><div class="ex-name">Tricep Pushdown</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">7</div><div class="ex-body"><div class="ex-name">Knee Raise</div><div class="ex-chips"><span class="chip chip-reps">15–20 reps</span></div></div></div>
+  </div>
+
+  <!-- Push Day 2 -->
+  <div class="plan-card push" id="push-2">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Push · Chest, Shoulders &amp; Triceps</div>
+      <div class="plan-card-name">Push Day 2</div>
+      <div class="plan-card-meta">
+        <span>8 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Incline Press &amp; Arnold Press before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Incline Press</div><div class="ex-chips"><span class="chip chip-reps">6–10 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Bench Press (Machine)</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">Arnold Press</div><div class="ex-chips"><span class="chip chip-reps">8–12 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">Rear Delt Fly</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">Cable Lateral Raise</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">6</div><div class="ex-body"><div class="ex-name">Cable Tricep Extension</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">7</div><div class="ex-body"><div class="ex-name">Tricep Cable Crossover</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">8</div><div class="ex-body"><div class="ex-name">Knee Raise</div><div class="ex-chips"><span class="chip chip-reps">15–20 reps</span></div></div></div>
+  </div>
+</div>
+
+<!-- ── LEGS ─────────────────────────────────── -->
+<div class="tmpl-tabs-wrap legs" id="tabs-legs">
+  <div class="tmpl-tabs">
+    <button class="tmpl-tab active" onclick="selectTmpl('legs',1)">Day 1</button>
+    <button class="tmpl-tab"        onclick="selectTmpl('legs',2)">Day 2</button>
+  </div>
+</div>
+
+<div class="plan-area legs" style="display:none">
+  <!-- Legs Day 1 -->
+  <div class="plan-card legs visible" id="legs-1">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Legs · Quads &amp; Hamstrings</div>
+      <div class="plan-card-name">Legs Day 1</div>
+      <div class="plan-card-meta">
+        <span>5 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Leg Press &amp; Goblet Squat before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Leg Press</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Seated Leg Curl</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">Seated Leg Extension</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">Goblet Squat</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">DB Side Bend</div><div class="ex-chips"><span class="chip chip-reps">15–20 reps</span></div></div></div>
+  </div>
+
+  <!-- Legs Day 2 -->
+  <div class="plan-card legs" id="legs-2">
+    <div class="plan-card-header">
+      <div class="plan-card-eyebrow">Legs · Quads &amp; Hamstrings</div>
+      <div class="plan-card-name">Legs Day 2</div>
+      <div class="plan-card-meta">
+        <span>6 exercises</span>
+      </div>
+    </div>
+    <div class="warmup-note">Warm up on Romanian Deadlift &amp; Leg Press before working sets</div>
+    <div class="ex-row"><div class="ex-index">1</div><div class="ex-body"><div class="ex-name">Romanian Deadlift</div><div class="ex-chips"><span class="chip chip-reps">8–12 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">2</div><div class="ex-body"><div class="ex-name">Leg Press</div><div class="ex-chips"><span class="chip chip-reps">10–15 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">3</div><div class="ex-body"><div class="ex-name">Hip Abductor</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">4</div><div class="ex-body"><div class="ex-name">Hip Adductor</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">5</div><div class="ex-body"><div class="ex-name">Standing Calf Raise</div><div class="ex-chips"><span class="chip chip-reps">12–20 reps</span></div></div></div>
+    <div class="ex-row"><div class="ex-index">6</div><div class="ex-body"><div class="ex-name">DB Side Bend</div><div class="ex-chips"><span class="chip chip-reps">15–20 reps</span></div></div></div>
+  </div>
+</div>
+
+<script>
+const CATS = ['pull','push','legs'];
+let activeCat = 'pull';
+let activeTmpl = { pull:1, push:1, legs:1 };
+
+function selectCat(cat) {
+  activeCat = cat;
+
+  // Category tab styles
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.cat-tab.' + cat).classList.add('active');
+
+  // Show/hide template tab rows
+  CATS.forEach(c => {
+    document.getElementById('tabs-' + c).classList.toggle('visible', c === cat);
+  });
+
+  // Show/hide plan areas
+  document.querySelectorAll('.plan-area').forEach(a => {
+    a.style.display = a.classList.contains(cat) ? 'block' : 'none';
+  });
+
+  showCard(cat, activeTmpl[cat]);
+}
+
+function selectTmpl(cat, num) {
+  activeTmpl[cat] = num;
+
+  // Template tab styles — only within this category's tab row
+  const tabRow = document.getElementById('tabs-' + cat);
+  tabRow.querySelectorAll('.tmpl-tab').forEach((t, i) => {
+    t.classList.toggle('active', i + 1 === num);
+  });
+
+  showCard(cat, num);
+}
+
+function showCard(cat, num) {
+  document.querySelectorAll('.plan-card.' + cat).forEach(c => c.classList.remove('visible'));
+  const card = document.getElementById(cat + '-' + num);
+  if (card) card.classList.add('visible');
+}
+
+// Init
+selectCat('pull');
+</script>
+</body>
+</html>
